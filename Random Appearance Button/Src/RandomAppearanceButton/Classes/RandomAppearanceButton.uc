@@ -136,6 +136,16 @@ var UIButton            UndoButton;
 var UIButton            ToggleGenderButton;
 var UIButton            CheckAllButton;
 var UIButton            UncheckAllButton;
+var UIButton            RandomHelmetButton;
+var UIButton            ClearHelmetButton;
+var UIButton            RandomHairButton;
+var UIButton            ClearHairButton;
+var UIButton            RandomHairColorButton;
+var UIButton            RandomEyeColorButton;
+var UIButton            RandomUpperButton;
+var UIButton            ClearUpperButton;
+var UIButton            RandomLowerButton;
+var UIButton            ClearLowerButton;
 
 var UIText              AttribLocksTitle;
 var UIText              WearablesLocksTitle;
@@ -155,7 +165,7 @@ const BUTTON_SPACING            = 3;
 
 // Can't get fontsize to impact checkboxes.
 const CHECKBOX_OFFSET_X         = -57;
-const CHECKBOX_OFFSET_Y         = 100; //130; //180;
+const CHECKBOX_OFFSET_Y         = 65;
 const CHECKBOX_NEIGHBOR_OFFSET  = 40;
 
 const TITLE_OFFSET_X            = -290;
@@ -222,6 +232,16 @@ event onRemoved(UIScreen Screen)
     UndoBuffer = none;
 
     BGBox.Destroy();
+    ClearHelmetButton.Destroy();
+    RandomHelmetButton.Destroy();
+    RandomHairButton.Destroy();
+    ClearHairButton.Destroy();
+    RandomHairColorButton.Destroy();
+    RandomEyeColorButton.Destroy();
+    ClearUpperButton.Destroy();
+    RandomUpperButton.Destroy();
+    ClearLowerButton.Destroy();
+    RandomLowerButton.Destroy();
     RandomAppearanceButton.Destroy();
     TotallyRandomButton.Destroy();
     ToggleOptionsVisibilityButton.Destroy();
@@ -254,13 +274,28 @@ simulated function InitRandomAppearanceButtonUI()
         Creates the lower panel of buttons below the checkbox UI.
     */
 
-    ToggleOptionsVisibilityButton       = CreateButton('RandomAppearanceToggle',    "Toggle Options",       ToggleChecklistVisiblity,               class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -165);
+    ToggleOptionsVisibilityButton       = CreateButton('RandomAppearanceToggle',    "Toggle Options",       ToggleChecklistVisiblity,               class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -270);
 
-    UndoButton                          = CreateButton('UndoButton',                "Undo",                 UndoAppearanceChanges,                  class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -165);
+    UndoButton                          = CreateButton('UndoButton',                "Undo",                 UndoAppearanceChanges,                  class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -270);
     UndoButtonGreyedOut(); // The buffer starts empty.
 
-    RandomAppearanceButton              = CreateButton('RandomAppearanceButton',    "Random Appearance",    GenerateNormalLookingRandomAppearance,  class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -190, -130);
-    TotallyRandomButton                 = CreateButton('TotallyRandomButton',       "Totally Random",       GenerateTotallyRandomAppearance,        class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -95);
+    ClearHelmetButton                   = CreateButton('ClearHelmetButton',         "Clear",				OnClearHelmetButtonClicked,             class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -235);
+    RandomHelmetButton                  = CreateButton('RandomHelmetButton',        "Random Helm",			OnRandomHelmetButtonClicked,			class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -235);
+
+    ClearUpperButton                    = CreateButton('ClearUpperButton',          "Clear",				OnClearUpperButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -200);
+    RandomUpperButton                   = CreateButton('RandomUpperButton',         "Random Upper",			OnRandomUpperButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -200);
+
+    ClearLowerButton                    = CreateButton('ClearLowerButton',          "Clear",				OnClearLowerButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -165);
+    RandomLowerButton                   = CreateButton('RandomLowerButton',         "Random Lower",			OnRandomLowerButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -165);
+
+    ClearHairButton                     = CreateButton('ClearHairButton',           "Clear",				OnClearHairButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -130);
+    RandomHairButton                    = CreateButton('RandomHairButton',          "Random Hair",			OnRandomHairButtonClicked,				class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -130);
+
+    RandomHairColorButton               = CreateButton('RandomHairColorButton',     "Hair Color",			OnRandomHairColorButtonClicked,			class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -95);
+    RandomEyeColorButton                = CreateButton('RandomEyeColorButton',      "Eyes Color",			OnRandomEyeColorButtonClicked,			class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -95);
+
+    RandomAppearanceButton              = CreateButton('RandomAppearanceButton',    "Random",				GenerateNormalLookingRandomAppearance,  class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -303, -60);
+    TotallyRandomButton                 = CreateButton('TotallyRandomButton',       "Totally Random",       GenerateTotallyRandomAppearance,        class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -150, -60);
 
     InitOptionsPanel();
 }
@@ -288,10 +323,10 @@ simulated function InitOptionsPanel()
     ToggleGenderButton.SetDisabled(false, "Changing gender will clear the undo buffer.");
     ToggleGenderButton.Hide();
 
-    CheckAllButton                                              = CreateButton('CheckAll',              "All",                  CheckAll,       class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -154, -207);
+    CheckAllButton                                              = CreateButton('CheckAll',              "All",                  CheckAll,       class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -154, -310);
     CheckAllButton.Hide();
 
-    UncheckAllButton                                            = CreateButton('UncheckAll',            "Clear",                UncheckAll,     class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -305, -207);
+    UncheckAllButton                                            = CreateButton('UncheckAll',            "Clear",                UncheckAll,     class'UIUtilities'.const.ANCHOR_BOTTOM_RIGHT, -305, -310);
     UncheckAllButton.Hide();
 
     /*
@@ -379,10 +414,130 @@ simulated function SpawnOptionsBG()
     BGBox = CustomizeMenuScreen.Spawn(class'UIPanel', CustomizeMenuScreen);
     BGBox.InitPanel('BGBox', class'UIUtilities_Controls'.const.MC_X2BackgroundSimple);
     BGBox.AnchorTopRight();
-    BGBox.SetSize(320, 850);
+    BGBox.SetSize(320, 780);
     BGBox.SetPosition(-310,CHECKBOX_OFFSET_Y - BUTTON_HEIGHT - BUTTON_SPACING - 10);    // remember, relative to the anchor
     BGBox.Hide();
 
+}
+
+simulated function OnRandomHelmetButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_Helmet, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnClearHelmetButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    SetTrait(eUICustomizeCat_Helmet, 0);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnRandomHairButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_Hairstyle, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnClearHairButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    SetTrait(eUICustomizeCat_Hairstyle, 0);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnRandomHairColorButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_HairColor, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnRandomEyeColorButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_EyeColor, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnRandomUpperButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_FaceDecorationUpper, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnClearUpperButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    SetTrait(eUICustomizeCat_FaceDecorationUpper, 0);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnRandomLowerButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    RandomizeTrait(eUICustomizeCat_FaceDecorationLower, true);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
+}
+
+simulated function OnClearLowerButtonClicked(UIButton Button)
+{
+    StoreAppearanceStateInUndoBuffer();
+    
+    SetTrait(eUICustomizeCat_FaceDecorationLower, 0);
+    
+    UpdateScreenData();
+    ResetCamera();
+    
+    StoreAppearanceStateInUndoBuffer();
 }
 
 simulated function ToggleChecklistVisiblity(UIButton Button)
@@ -450,6 +605,16 @@ simulated function HideUI()
     }
 
     ToggleOptionsVisibilityButton.Hide();
+    ClearHelmetButton.Hide();
+    RandomHelmetButton.Hide();
+    RandomHairButton.Hide();
+    ClearHairButton.Hide();
+    RandomHairColorButton.Hide();
+    RandomEyeColorButton.Hide();
+    ClearUpperButton.Hide();
+    RandomUpperButton.Hide();
+    ClearLowerButton.Hide();
+    RandomLowerButton.Hide();
     RandomAppearanceButton.Hide();
     TotallyRandomButton.Hide();
     UndoButton.Hide();
@@ -490,6 +655,16 @@ simulated function ShowUI()
     }
 
     ToggleOptionsVisibilityButton.Show();
+    ClearHelmetButton.Show();
+    RandomHelmetButton.Show();
+    RandomHairButton.Show();
+    ClearHairButton.Show();
+    RandomHairColorButton.Show();
+    RandomEyeColorButton.Show();
+    ClearUpperButton.Show();
+    RandomUpperButton.Show();
+    ClearLowerButton.Show();
+    RandomLowerButton.Show();
     RandomAppearanceButton.Show();
     TotallyRandomButton.Show();
     UndoButton.Show();
