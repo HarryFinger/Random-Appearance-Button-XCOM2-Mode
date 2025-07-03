@@ -83,6 +83,7 @@ simulated static function ECategoryType GetCategoryType(const out int iCategoryI
             case eUICustomizeCat_SecondaryArmorColor:
             case eUICustomizeCat_WeaponColor:
             case eUICustomizeCat_TattooColor:
+            case eUICustomizeCat_Skin:
                 return eCategoryType_Color;
                 break;
 
